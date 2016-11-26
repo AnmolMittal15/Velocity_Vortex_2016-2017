@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,37 +13,49 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 public class HardwareMaelstromBot {
-    public Servo beaconServo;
-    public Servo drawServo;
-    public Servo liftServo;
+
     public DcMotor frontLeftMotor;
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
     public DcMotor backRightMotor;
-    public ColorSensor beaconSensor;
+    public DcMotor liftMotor;
+    public DcMotor intakeMotor;
+    //public DcMotor flywheelMotor;
+    public Servo beaconServo;
+    public Servo drawServoRight;
+    public Servo drawServoLeft;
+    public Servo leftgripper;
+    public Servo rightgripper;
     public ColorSensor lineSensor;
-    public DcMotor motor;
+    public ColorSensor beaconSensor;
+
 
     HardwareMap hwMap;
 
+
     public void init(HardwareMap ahwMap) {
         hwMap = ahwMap;
-        motor = hwMap.dcMotor.get("motor");
 
-        beaconServo = ahwMap.servo.get("beacon servo");
         frontLeftMotor = hwMap.dcMotor.get("front left motor");
         backLeftMotor = hwMap.dcMotor.get("back left motor");
         frontRightMotor = hwMap.dcMotor.get("front right motor");
-        backRightMotor = hwMap.dcMotor.get("back left motor");
-        beaconSensor = hwMap.colorSensor.get("beacon sensor");
+        backRightMotor = hwMap.dcMotor.get("back right motor");
+        liftMotor = hwMap.dcMotor.get("lift motor");
+        intakeMotor = hwMap.dcMotor.get("intake motor");
+        //flywheelMotor = hwMap.dcMotor.get("flywheel motor");
+        beaconServo = hwMap.servo.get("beacon servo");
+        drawServoRight = hwMap.servo.get("draw servo right");
+        drawServoLeft = hwMap.servo.get("draw servo left");
+        leftgripper = hwMap.servo.get("left gripper servo");
+        rightgripper = hwMap.servo.get("right gripper servo");
         lineSensor = hwMap.colorSensor.get("line sensor");
+        beaconSensor = hwMap.colorSensor.get("beacon sensor");
 
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        beaconSensor.setI2cAddress(I2cAddr.create7bit(0x1e));
+        lineSensor.setI2cAddress(I2cAddr.create7bit(0x26));
 
-        frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        beaconSensor.enableLed(false);
+        lineSensor.enableLed(true);
     }
 
 }
