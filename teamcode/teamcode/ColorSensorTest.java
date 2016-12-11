@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
  */
 
 @TeleOp (name = "Color Sensor AutonomousTest", group = "Teleop")
-//@Disabled
+@Disabled
 public class ColorSensorTest extends LinearOpMode{
 
     public void runOpMode() {
@@ -22,7 +22,7 @@ public class ColorSensorTest extends LinearOpMode{
         beaconSensor.setI2cAddress(I2cAddr.create7bit(0x1e));
         lineSensor.setI2cAddress(I2cAddr.create7bit(0x26));
 
-        beaconSensor.enableLed(false);
+        beaconSensor.enableLed(true);
         lineSensor.enableLed(true);
         waitForStart();
 
@@ -30,8 +30,6 @@ public class ColorSensorTest extends LinearOpMode{
 
             telemetry.addData("beacon sensor alpha", beaconSensor.alpha());
             telemetry.addData("line sensor alpha", lineSensor.alpha());
-            telemetry.addData("beacon sensor red", beaconSensor.red());
-            telemetry.addData("beacon sensor blue", beaconSensor.blue());
             telemetry.update();
 
         }

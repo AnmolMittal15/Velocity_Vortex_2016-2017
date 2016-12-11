@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  * Created by davjun on 10/30/2016.
  */
 
-@Autonomous(name="Trash", group ="Autonomous")
-//@Disabled
-public class Trash extends LinearOpMode{
+@Autonomous(name="Ball Autonomous", group ="Autonomous")
+@Disabled
+public class BallAutonomous extends LinearOpMode{
 
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
 
