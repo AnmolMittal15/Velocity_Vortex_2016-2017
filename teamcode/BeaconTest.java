@@ -38,15 +38,14 @@ public class BeaconTest extends LinearOpMode{
 
         waitForStart();
 
-        robot.frontLeftMotor.setPower(0.5);
-        robot.backLeftMotor.setPower(0.5);
-        robot.frontRightMotor.setPower(-0.5);
-        robot.backRightMotor.setPower(-0.5);
-
-        sleep(1500);
+        robot.frontLeftMotor.setPower(0.1);
+        robot.backLeftMotor.setPower(0.1);
+        robot.frontRightMotor.setPower(-0.1);
+        robot.backRightMotor.setPower(-0.1);
 
 
-        while(opModeIsActive() && (robot.lineSensor.alpha() < 20)) {
+
+        while(opModeIsActive() && (robot.lineSensor.alpha() != 255)) {
             telemetry.addData("Front Right Power",robot.frontRightMotor.getPower());
             telemetry.addData("Front Left Power",robot.frontLeftMotor.getPower());
             telemetry.addData("Back Right Power",robot.backRightMotor.getPower());
@@ -67,16 +66,16 @@ public class BeaconTest extends LinearOpMode{
         robot.backRightMotor.setPower(0);
         sleep(5000);
 
+
         if (robot.beaconSensor.red() >= 2) {
 
             robot.beaconServo.setPosition(0);
-            sleep(300);
         }
 
         else if (robot.beaconSensor.blue() >= 2) {
 
             robot.beaconServo.setPosition(0.75);
-            sleep(300);
+
         }
 
     }

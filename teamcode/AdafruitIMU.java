@@ -1,4 +1,4 @@
-/*
+/**
 
 This is Archi:
 
@@ -11,7 +11,6 @@ If you code like Archi,
 then your code will not work.
 
 Do not code like Archi.
-
  */
 
 package org.firstinspires.ftc.teamcode;

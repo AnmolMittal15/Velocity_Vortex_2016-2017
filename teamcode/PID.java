@@ -13,6 +13,15 @@ public class PID
         double error = target - currentLoc;
         i += error;
         double power = (kp*error) + (ki*i);
+
+        if (power > 0.8) {
+            power = 0.8;
+        }
+
+        if (power < -0.8) {
+            power = -0.8;
+        }
+
         return power;
     }
 
@@ -21,6 +30,15 @@ public class PID
         double error = target - currentLoc;
         i += error;
         double power = (kp*error) + (ki*i);
+
+        if (power > 0.8) {
+            power = 0.8;
+        }
+
+        if (power < -0.8) {
+            power = -0.8;
+        }
+
         return power;
     }
 }
