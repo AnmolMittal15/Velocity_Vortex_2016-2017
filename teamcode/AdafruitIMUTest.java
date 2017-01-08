@@ -44,14 +44,23 @@ public class AdafruitIMUTest extends LinearOpMode {
 
         waitForStart();
         telemetry.clear();
-
+        double previousAngle = 0;
+        double deltaAngle = 0;
+        double previousTime = System.nanoTime();
         while (opModeIsActive()) {
             double[] angles = imu.getAngles();
             double yaw = angles[0];
             double pitch = angles[1];
             double roll = angles[2];
+            if ((System.nanoTime() - previousTime)/1000000 >= 1000) {
+                deltaAngle = yaw - previousAngle;
+                previousAngle = yaw;
+                previousTime = System.nanoTime();
+            }
+
 
             telemetry.addData(imu.getName(), imu.telemetrize());
+            telemetry.addData("Delta:", deltaAngle);
             telemetry.update();
         }
     }

@@ -16,9 +16,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -26,9 +24,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * Created by davjun on 10/30/2016.
  */
 
-@Autonomous(name="Autonomous Test", group ="Autonomous")
+@Autonomous(name="Autonomous Test With Righting", group ="Autonomous")
 //@Disabled
-public class AutonomousTest extends LinearOpMode{
+public class AutonomousTestWithRighting extends LinearOpMode{
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     PID PID = new PID();
 
@@ -37,6 +35,7 @@ public class AutonomousTest extends LinearOpMode{
         robot.init(hardwareMap);
 
         eReset();
+
 
         robot.beaconServo.setPosition(0.38);
 
@@ -64,58 +63,11 @@ public class AutonomousTest extends LinearOpMode{
 
         waitForStart();
 
+
         telemetry.clear();
 
-/*
-        angleTarget = 45;
-        PID.i = 0;
-        startTime = System.nanoTime();
-        stopState = 0;
-        while (opModeIsActive()  && (stopState <= 500)) {
-            angles = imu.getAngles();
-            yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.012, 0));
-            robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
-            telemetry.addData("Yaw:", yaw);
-            telemetry.update();
-            if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
-                stopState = (System.nanoTime() - startTime)/1000000;
-            }
-            else {
-                startTime = System.nanoTime();
-            }
-            sleep(1);
-        }
-        */
 
-
-/*
-        angleTarget = -45;
-        PID.i = 0;
-        startTime = System.nanoTime();
-        stopState = 0;
-        while (opModeIsActive()  && (stopState <= 500)) {
-            angles = imu.getAngles();
-            yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.012, 0));
-            robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
-            telemetry.addData("Yaw:", yaw);
-            telemetry.update();
-            if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
-                stopState = (System.nanoTime() - startTime)/1000000;
-            }
-            else {
-                startTime = System.nanoTime();
-            }
-            sleep(1);
-        }
-*/
-
-        EncoderDrive(400, 0.0004, 0.0000002);
+        EncoderDrive(400, 0.0006, 0);
 
         angleTarget = 30;
         PID.i = 0;
@@ -129,64 +81,69 @@ public class AutonomousTest extends LinearOpMode{
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
+            telemetry.addData("Random", Math.random());
             telemetry.update();
             if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
-                stopState = (System.nanoTime() - startTime)/1000000;
-            }
-            else {
+                stopState = (System.nanoTime() - startTime) / 1000000;
+            } else {
                 startTime = System.nanoTime();
             }
             sleep(1);
         }
 
-        EncoderDrive(3700, 0.0002, 0.00000002);
+        EncoderDrive(3200, 0.00041, 0);
 
-        angleTarget = 0;
-        /*if(imu.getAngles()[0] < 31 && imu.getAngles()[0] > 25)
-        {
-            telemetry.addLine("Correct Position");
-        }
-        else {
-            telemetry.addLine("Wrong Position");
-        }
-        telemetry.update();
-        sleep(2000);*/
+        angleTarget = -120;
         PID.i = 0;
         startTime = System.nanoTime();
         stopState = 0;
-        while (opModeIsActive() && (stopState <= 1000)) {
+        while (opModeIsActive() && (stopState <= 200)) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(0.5 *PID.AnglePID(angleTarget, yaw, 0.01, 0));
-            robot.frontLeftMotor.setPower(2*robot.frontRightMotor.getPower());
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.00435, 0));
+            robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(2*robot.frontRightMotor.getPower());
+            robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
-            telemetry.addData("Target:" ,angleTarget);
+            telemetry.addData("Random", Math.random());
             telemetry.update();
             if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
-                stopState = (System.nanoTime() - startTime)/1000000;
-            }
-            else {
+                stopState = (System.nanoTime() - startTime) / 1000000;
+            } else {
                 startTime = System.nanoTime();
             }
             sleep(1);
         }
 
-        robot.frontLeftMotor.setPower(0.15);
-        robot.backLeftMotor.setPower(0.15);
-        robot.frontRightMotor.setPower(-0.15);
-        robot.backRightMotor.setPower(-0.15);
+            EncoderDrive(-1440, 0.0005, 0);
 
-        BeaconChecker();
+            sleep(750);
 
-        robot.frontLeftMotor.setPower(-0.15);
-        robot.backLeftMotor.setPower(-.15);
-        robot.frontRightMotor.setPower(0.15);
-        robot.backRightMotor.setPower(0.15);
-        sleep(4000);
+            angleTarget = 90;
+            PID.i = 0;
+            startTime = System.nanoTime();
+            stopState = 0;
+            while (opModeIsActive() && (stopState <= 1000)) {
+                angles = imu.getAngles();
+                yaw = angles[0];
+                robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0082, 0));
+                robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
+                robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
+                robot.backLeftMotor.setPower(0);
+                telemetry.addData("Yaw:", yaw);
+                telemetry.addData("Random", Math.random());
+                telemetry.update();
+                if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
+                    stopState = (System.nanoTime() - startTime) / 1000000;
+                } else {
+                    startTime = System.nanoTime();
+                }
+                sleep(1);
+            }
 
-        BeaconChecker();
+        BeaconChecker(false);
+
+        BeaconChecker(true);
 
 /*
         angleTarget = -180;
@@ -235,16 +192,16 @@ public class AutonomousTest extends LinearOpMode{
         long stopState = 0;
         encoder = -encoder;
         PID.i =0;
-        //double initialHeading = imu.getAngles()[0];
-        //double corrKP = 0/*.0035*/;
+        double initialHeading = imu.getAngles()[0];
+        double corrKP = 0.0035;
 
         while (opModeIsActive() && (stopState <= 1000)) {
-            //double error = imu.getAngles()[0] - initialHeading;
+            double error = imu.getAngles()[0] - initialHeading;
             telemetry.addData("Integral:", PID.i);
             robot.frontRightMotor.setPower(PID.EncoderPID(encoder, robot.frontRightMotor.getCurrentPosition(), kp, ki));
-            robot.frontLeftMotor.setPower(-robot.frontRightMotor.getPower() /*+ corrKP * error*/);
+            robot.frontLeftMotor.setPower(-robot.frontRightMotor.getPower() + corrKP * error);
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(-robot.frontRightMotor.getPower() /*+ corrKP * error*/);
+            robot.backLeftMotor.setPower(-robot.frontRightMotor.getPower() + corrKP * error);
 
             telemetry.addData("Right Encoder",robot.frontRightMotor.getCurrentPosition());
             telemetry.addData("Front Right Power",robot.frontRightMotor.getPower());
@@ -265,10 +222,25 @@ public class AutonomousTest extends LinearOpMode{
         eReset();
     }
 
-
-
-    public void BeaconChecker() {
+    public void BeaconChecker(boolean reverse) {
+        AdafruitIMU imu = new AdafruitIMU("IMU", hardwareMap);
+        double initialHeading = imu.getAngles()[0];
+        double corrKP = 0.002;
+        if (!reverse) {
+            robot.frontLeftMotor.setPower(0.15);
+            robot.backLeftMotor.setPower(0.15);
+            robot.frontRightMotor.setPower(-0.15);
+            robot.backRightMotor.setPower(-0.15);
+        } else {
+            robot.frontLeftMotor.setPower(-0.15);
+            robot.backLeftMotor.setPower(-.15);
+            robot.frontRightMotor.setPower(0.15);
+            robot.backRightMotor.setPower(0.15);
+        }
         while(opModeIsActive() && (robot.lineSensor.alpha() != 255)) {
+            double error = imu.getAngles()[0] - initialHeading;
+            robot.frontLeftMotor.setPower(robot.frontLeftMotor.getPower() + corrKP * error);
+            robot.backLeftMotor.setPower(robot.backLeftMotor.getPower() + corrKP * error);
             telemetry.addData("Line Sensor Alpha",robot.lineSensor.alpha());
             telemetry.update();
             sleep(1);

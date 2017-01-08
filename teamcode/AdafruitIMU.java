@@ -22,12 +22,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
 import java.util.Locale;
 
 
-/**
- * This is an Adafruit Bosch BNO055 Inertial Measurement Unit.
- * It gets data in quaternions from the fused sensor data, and returns yaw, pitch, and roll.
- * Created by Varun Singh, Lead Programmer of FTC Team 4997 Masquerade.
- */
-
 public class AdafruitIMU {
 
     private final BNO055IMU imu;
@@ -51,12 +45,6 @@ public class AdafruitIMU {
         imu.initialize(parameters);
     }
 
-
-    /**
-     * This method returns a 3x1 array of doubles with the yaw, pitch, and roll in that order.
-     * The equations used in this method came from:
-     * https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_Angles_from_Quaternion
-     */
     public double[] getAngles() {
         Quaternion quatAngles = imu.getQuaternionOrientation();
 

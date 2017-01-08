@@ -49,8 +49,7 @@ public class TeleopMaelstromBot extends OpMode {
     public void loop() {
 
         if (gamepad1.y) {
-            slowMode = !slowMode;
-            while(gamepad1.y){}
+            slowMode = false;
         }
 
         if (!slowMode) {
@@ -106,6 +105,7 @@ public class TeleopMaelstromBot extends OpMode {
         if (gamepad2.y && drawReleased) {
             robot.leftgripper.setPosition(0.5);
             robot.rightgripper.setPosition(0.5);
+            slowMode = true;
         }
         if (gamepad2.right_bumper && drawReleased) {
             robot.liftMotor.setPower(1);

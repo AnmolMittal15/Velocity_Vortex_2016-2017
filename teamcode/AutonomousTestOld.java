@@ -26,9 +26,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * Created by davjun on 10/30/2016.
  */
 
-@Autonomous(name="Autonomous Test", group ="Autonomous")
-//@Disabled
-public class AutonomousTest extends LinearOpMode{
+@Autonomous(name="Autonomous Test Old", group ="Autonomous")
+
+public class AutonomousTestOld extends LinearOpMode{
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     PID PID = new PID();
 
@@ -113,18 +113,17 @@ public class AutonomousTest extends LinearOpMode{
             }
             sleep(1);
         }
-*/
-
-        EncoderDrive(400, 0.0004, 0.0000002);
+*/ //egg
+        EncoderDrive(400, 0.0007, 0);
 
         angleTarget = 30;
         PID.i = 0;
         startTime = System.nanoTime();
         stopState = 0;
-        while (opModeIsActive() && (stopState <= 1000)) {
+        while (opModeIsActive() && (stopState <= 500)) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.01, 0));
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0089, 0));
             robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
@@ -139,30 +138,20 @@ public class AutonomousTest extends LinearOpMode{
             sleep(1);
         }
 
-        EncoderDrive(3700, 0.0002, 0.00000002);
+        EncoderDrive(3600, 0.0003, 0);
 
         angleTarget = 0;
-        /*if(imu.getAngles()[0] < 31 && imu.getAngles()[0] > 25)
-        {
-            telemetry.addLine("Correct Position");
-        }
-        else {
-            telemetry.addLine("Wrong Position");
-        }
-        telemetry.update();
-        sleep(2000);*/
         PID.i = 0;
         startTime = System.nanoTime();
         stopState = 0;
-        while (opModeIsActive() && (stopState <= 1000)) {
+        while (opModeIsActive() && (stopState <= 500)) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(0.5 *PID.AnglePID(angleTarget, yaw, 0.01, 0));
-            robot.frontLeftMotor.setPower(2*robot.frontRightMotor.getPower());
+            robot.frontRightMotor.setPower(0.5*PID.AnglePID(angleTarget, yaw, 0.018, 0));
+            robot.frontLeftMotor.setPower(-2*robot.frontRightMotor.getPower());
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(2*robot.frontRightMotor.getPower());
+            robot.backLeftMotor.setPower(-2*robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
-            telemetry.addData("Target:" ,angleTarget);
             telemetry.update();
             if (yaw >= (angleTarget - 2) && yaw <= (angleTarget + 2)) {
                 stopState = (System.nanoTime() - startTime)/1000000;
@@ -172,7 +161,6 @@ public class AutonomousTest extends LinearOpMode{
             }
             sleep(1);
         }
-
         robot.frontLeftMotor.setPower(0.15);
         robot.backLeftMotor.setPower(0.15);
         robot.frontRightMotor.setPower(-0.15);
@@ -229,29 +217,21 @@ public class AutonomousTest extends LinearOpMode{
     }
 
     public void EncoderDrive(int encoder, double kp, double ki) {
-        AdafruitIMU imu = new AdafruitIMU("IMU", hardwareMap);
         eReset();
         long startTime = System.nanoTime();
         long stopState = 0;
         encoder = -encoder;
-        PID.i =0;
-        //double initialHeading = imu.getAngles()[0];
-        //double corrKP = 0/*.0035*/;
-
-        while (opModeIsActive() && (stopState <= 1000)) {
-            //double error = imu.getAngles()[0] - initialHeading;
-            telemetry.addData("Integral:", PID.i);
+        PID.i = 0;
+        while (opModeIsActive() && (stopState <= 500)) {
             robot.frontRightMotor.setPower(PID.EncoderPID(encoder, robot.frontRightMotor.getCurrentPosition(), kp, ki));
-            robot.frontLeftMotor.setPower(-robot.frontRightMotor.getPower() /*+ corrKP * error*/);
+            robot.frontLeftMotor.setPower(-robot.frontRightMotor.getPower());
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
-            robot.backLeftMotor.setPower(-robot.frontRightMotor.getPower() /*+ corrKP * error*/);
-
+            robot.backLeftMotor.setPower(-robot.frontRightMotor.getPower());
             telemetry.addData("Right Encoder",robot.frontRightMotor.getCurrentPosition());
             telemetry.addData("Front Right Power",robot.frontRightMotor.getPower());
             telemetry.addData("Front Left Power",robot.frontLeftMotor.getPower());
             telemetry.addData("Back Right Power",robot.backRightMotor.getPower());
             telemetry.addData("Back Left Power",robot.backLeftMotor.getPower());
-            //telemetry.addData("kI", ki);
             telemetry.update();
             if ((robot.frontRightMotor.getCurrentPosition() >= (encoder - 100)) && (robot.frontRightMotor.getCurrentPosition() <= (encoder + 100))) {
                 stopState = (System.nanoTime() - startTime)/1000000;
