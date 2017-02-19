@@ -17,6 +17,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LegacyModulePortDevice;
+
 import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
 
 import java.util.Locale;

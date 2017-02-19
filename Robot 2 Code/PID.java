@@ -7,12 +7,15 @@ package org.firstinspires.ftc.teamcode;
 public class PID
 {
     double i = 0;
+    double tempError = 0;
+    double tempPower = 0;
 
-    public double EncoderPID(double target, double currentLoc, double kp, double ki)
+    public double EncoderPID(double target, double currentLoc, double KP, double ki)
     {
         double error = target - currentLoc;
+        tempError = error;
         i += error;
-        double power = (kp*error) + (ki*i);
+        double power = (KP*error) + (ki*i);
 
         if (power > 0.8) {
             power = 0.8;
@@ -25,11 +28,11 @@ public class PID
         return power;
     }
 
-    public double AnglePID(double target, double currentLoc, double kp, double ki)
+    public double AnglePID(double target, double currentLoc, double KP, double ki)
     {
         double error = target - currentLoc;
         i += error;
-        double power = (kp*error) + (ki*i);
+        double power = (KP*error) + (ki*i);
 
         if (power > 0.8) {
             power = 0.8;

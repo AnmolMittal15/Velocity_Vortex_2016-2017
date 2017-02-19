@@ -38,17 +38,21 @@ public class TeleopMaelstromBot extends OpMode {
     boolean autoshootEnabled = false;
     boolean slowMode = false;
     boolean drawReleased = false;
+    boolean halfSpeed = false;
+    double timeSincheHalf = 0.5;
+    long buttonPressedStart;
 
     public void init() {
 
         robot.init(hardwareMap);
         telemetry.addData("Say", "Hello Driver");
+        telemetry.addData("Did you know", "London is better than Ramsey.");
         telemetry.update();
 
         robot.beaconServo.setPower(0);
         robot.indexer.setPosition(0);
-        robot.rightGripper.setPosition(0);
-        robot.leftGripper.setPosition(1);
+        robot.rightGripper.setPosition(0.999);
+        robot.leftGripper.setPosition(.001);
 /*
         robot.beaconServo.setPosition(0.38);
 
@@ -61,6 +65,14 @@ public class TeleopMaelstromBot extends OpMode {
     }
 
     public void loop() {
+
+        if (gamepad1.y && timeSincheHalf >= 0.5) {
+            buttonPressedStart = System.nanoTime();
+        }
+        timeSincheHalf = (System.nanoTime() - buttonPressedStart)/1e9;
+        if (timeSincheHalf > 0.5 && gamepad1.y) {
+            halfSpeed = !halfSpeed;
+        }
 
         if (gamepad1.right_bumper) {
             robot.topLeftIntake.setPower(-1);
@@ -81,28 +93,38 @@ public class TeleopMaelstromBot extends OpMode {
 
               drive();
 
-        if (gamepad1.x) {
+        if (gamepad1.x || gamepad2.dpad_right) {
              robot.beaconServo.setPower(1);
         }
-        else if (gamepad1.b) {
+        else if (gamepad1.b || gamepad2.dpad_left) {
             robot.beaconServo.setPower(-1);
         }
         else {
             robot.beaconServo.setPower(0);
         }
-
-        if (gamepad2.y) {
-            robot.rightGripper.setPosition(1);
-            robot.leftGripper.setPosition(0);
+        /*
+        if (gamepad2.right_stick_y !=0) {
+            robot.rightGripper.setPosition(gamepad2.right_stick_y);
+            robot.leftGripper.setPosition(1 - gamepad2.right_stick_y);
         }
-        else if (gamepad2.x) {
-            robot.rightGripper.setPosition(0.5);
-            robot.leftGripper.setPosition(0.5);
+        else {
+            robot.rightGripper.setPosition(0.999);
+            robot.leftGripper.setPosition(.001);
         }
-        else if (gamepad2.a) {
-            robot.rightGripper.setPosition(0);
-            robot.leftGripper.setPosition(1);
+        telemetry.addData("Position:", gamepad2.right_stick_y);
+        */
+        if (gamepad2.y) { //Up
+            robot.rightGripper.setPosition(.93);
+            robot.leftGripper.setPosition(.07);
         }
+        else if (gamepad2.x) { //Grip
+            robot.rightGripper.setPosition(0.963);
+            robot.leftGripper.setPosition(0.037);
+        }
+        /*else if (gamepad2.a) {
+            robot.rightGripper.setPosition(.1); //Changed from 0
+            robot.leftGripper.setPosition(.9); //Changed from 1
+        }*/
         if (gamepad2.right_bumper) {
             robot.leftLiftMotor.setPower(1);
             robot.rightLiftMotor.setPower(-1);
@@ -110,6 +132,15 @@ public class TeleopMaelstromBot extends OpMode {
         else if (gamepad2.left_bumper) {
             robot.leftLiftMotor.setPower(-1);
             robot.rightLiftMotor.setPower(1);
+        }
+        else if (gamepad2.right_trigger > 0){
+            robot.leftLiftMotor.setPower(gamepad2.right_trigger);
+            robot.rightLiftMotor.setPower(-gamepad2.right_trigger);
+        }
+
+        else if (gamepad2.left_trigger>0) {
+            robot.leftLiftMotor.setPower(-gamepad2.left_trigger);
+            robot.rightLiftMotor.setPower(gamepad2.left_trigger);
         }
         else {
             robot.leftLiftMotor.setPower(0);
@@ -144,7 +175,7 @@ public class TeleopMaelstromBot extends OpMode {
             startTime = System.nanoTime();
         }*/
 
-        if (gamepad1.a) {
+        if (gamepad1.a || gamepad2.b) {
             robot.indexer.setPosition(0.25);
         }
         else {
@@ -178,28 +209,48 @@ public class TeleopMaelstromBot extends OpMode {
             angle = (3 * Math.PI) / 2;
         }
 
+        telemetry.addData("angle:", angle*180/Math.PI);
+
         speedMagnitude = Math.hypot(x, y);
-        frontLeft = -speedMagnitude*(Math.sin(angle + (Math.PI/4))) + gamepad1.right_stick_x;
-        backLeft = -speedMagnitude*(Math.cos(angle + (Math.PI/4))) + gamepad1.right_stick_x;
-        frontRight = speedMagnitude*(Math.cos(angle + (Math.PI/4))) + gamepad1.right_stick_x;
-        backRight = speedMagnitude*(Math.sin(angle + (Math.PI/4))) + gamepad1.right_stick_x;
+        frontLeft = -(Math.sin(angle + (Math.PI/4))) * speedMagnitude + gamepad1.right_stick_x;
+        backLeft = -(Math.cos(angle + (Math.PI/4))) * speedMagnitude + gamepad1.right_stick_x;
+        frontRight = (Math.cos(angle + (Math.PI/4))) * speedMagnitude + gamepad1.right_stick_x;
+        backRight = (Math.sin(angle + (Math.PI/4))) * speedMagnitude + gamepad1.right_stick_x;
 
-        driveScaleFactor = Math.max(
+
+        telemetry.addData("x" , gamepad1.right_stick_x);
+
+
+        driveScaleFactor = Math.abs(Math.max(
                 Math.max(frontLeft, frontRight),
-                Math.max(backLeft, backRight)
-        );
+                Math.max(backLeft, backRight)))
+                != 0 ? Math.abs(Math.max(
+                Math.max(frontLeft, frontRight),
+                Math.max(backLeft, backRight))) : 1
+        ;
 
-        if (driveScaleFactor < 1) driveScaleFactor = 1;
 
-        frontLeft *= driveScaleFactor;
-        frontRight *= driveScaleFactor;
-        backLeft *= driveScaleFactor;
-        backRight *= driveScaleFactor;
+        frontLeft /= driveScaleFactor;
+        frontRight /= driveScaleFactor;
+        backLeft /= driveScaleFactor;
+        backRight /= driveScaleFactor;
 
-        robot.frontLeftMotor.setPower(frontLeft);
-        robot.backLeftMotor.setPower(backLeft);
-        robot.frontRightMotor.setPower(frontRight);
-        robot.backRightMotor.setPower(backRight);
+        telemetry.addData("FrontLeft: ", frontLeft);
+        telemetry.addData("FrontRight: ", frontRight);
+        telemetry.addData("BackLeft: ", backLeft);
+        telemetry.addData("BackRight: ", backRight);
 
+        if (halfSpeed) {
+            robot.frontLeftMotor.setPower(0.5*frontLeft);
+            robot.backLeftMotor.setPower(0.5*backLeft);
+            robot.frontRightMotor.setPower(0.5*frontRight);
+            robot.backRightMotor.setPower(0.5*backRight);
+        }
+        else {
+            robot.frontLeftMotor.setPower(frontLeft);
+            robot.backLeftMotor.setPower(backLeft);
+            robot.frontRightMotor.setPower(frontRight);
+            robot.backRightMotor.setPower(backRight);
+        }
     }
 }
