@@ -117,7 +117,7 @@ public class RedAuto extends LinearOpMode{
             telemetry.addData("Yaw:", yaw);
             telemetry.addData("Random", Math.random());
             telemetry.update();
-            if (yaw >= (angleTarget - 1) && yaw <= (angleTarget + 1)) {
+            if (yaw >= (angleTarget - 1.25) && yaw <= (angleTarget + 1.25)) {
                 stopState = (System.nanoTime() - startTime) / 1000000;
             }
             else {
@@ -265,7 +265,7 @@ public class RedAuto extends LinearOpMode{
             telemetry.addData("Integral:", PID.i);
 
             robot.frontLeftMotor.setPower((frontLeft * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) + (corrKP * error));
-            robot.backLeftMotor.setPower((backLeft * PID.EncoderPID(rightEncoder, robot.backRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
+            robot.backLeftMotor.setPower((backLeft * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
             robot.frontRightMotor.setPower((frontRight * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
             robot.backRightMotor.setPower((backRight * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) + (corrKP * error));
 

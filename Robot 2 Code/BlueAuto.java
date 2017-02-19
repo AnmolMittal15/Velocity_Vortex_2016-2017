@@ -101,7 +101,7 @@ public class BlueAuto extends LinearOpMode{
         */
         //EncoderDrive(8180, 7650, 315, 0.000093, 0.0000000005);
 
-        EncoderDrive(/*5750*/ 5600, 180, 0.00034, 0.00000000045);
+        EncoderDrive(/*5750*/ -5650, 180, 0.00034, 0.00000000045);
 
         angleTarget = /*-27.5*/ 24;
         PID.i = 0;
@@ -110,14 +110,14 @@ public class BlueAuto extends LinearOpMode{
         while (opModeIsActive() && (stopState <= 1000)) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0072, 0.00000000053));
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0064, 0.00000000053));
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
             telemetry.addData("Random", Math.random());
             telemetry.update();
-            if (yaw >= (angleTarget - 1) && yaw <= (angleTarget + 1)) {
+            if (yaw >= (angleTarget - 1.25) && yaw <= (angleTarget + 1.25)) {
                 stopState = (System.nanoTime() - startTime) / 1000000;
             }
             else {
@@ -255,19 +255,21 @@ public class BlueAuto extends LinearOpMode{
         double initialHeading = imu.getAngles()[0];
         double corrKP = 0.01;
         angle = angle*(Math.PI/180);
-        frontLeft = -(Math.sin(angle + (Math.PI/4)));
-        backLeft = -(Math.cos(angle + (Math.PI/4)));
-        frontRight = (Math.cos(angle + (Math.PI/4)));
-        backRight = (Math.sin(angle + (Math.PI/4)));
+        frontLeft = (Math.sin(angle + (Math.PI/4)));
+        backLeft = (Math.cos(angle + (Math.PI/4)));
+        frontRight = -(Math.cos(angle + (Math.PI/4)));
+        backRight = -(Math.sin(angle + (Math.PI/4)));
 
         while (opModeIsActive() && (stopState <= 1000)) {
             error = imu.getAngles()[0] - initialHeading;
-            telemetry.addData("Integral:", PID.i);
+            //telemetry.addData("Integral:", PID.i);
 
             robot.frontLeftMotor.setPower((frontLeft * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) + (corrKP * error));
-            robot.backLeftMotor.setPower((backLeft * PID.EncoderPID(rightEncoder, robot.backRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
+            robot.backLeftMotor.setPower((backLeft * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
             robot.frontRightMotor.setPower((frontRight * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) /*+ (corrKP * error)*/);
             robot.backRightMotor.setPower((backRight * PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), KP, KI)) + (corrKP * error));
+
+            //telemetry.addData("Encoder Error:", PID.tempError);
 
 /*
             robot.frontRightMotor.setPower(PID.EncoderPID(encoder, robot.frontRightMotor.getCurrentPosition(), KP, KI));
@@ -278,7 +280,7 @@ public class BlueAuto extends LinearOpMode{
             //telemetry.addData("Front Left Encoder",robot.frontLeftMotor.getCurrentPosition());
             //telemetry.addData("Back Left Encoder",robot.backLeftMotor.getCurrentPosition());
             telemetry.addData("Front Right Encoder",robot.frontRightMotor.getCurrentPosition());
-            telemetry.addData("Back Left Encoder",robot.backLeftMotor.getCurrentPosition());
+            //telemetry.addData("Back Left Encoder",robot.backLeftMotor.getCurrentPosition());
             //telemetry.addData("Back Right Encoder",robot.backRightMotor.getCurrentPosition());
 
             telemetry.addData("Front Right Power",robot.frontRightMotor.getPower());
@@ -359,7 +361,7 @@ public class BlueAuto extends LinearOpMode{
             robot.backRightMotor.setPower(-.1625);
 
             //startTime = System.nanoTime();
-            while((opModeIsActive() && (robot.lineSensor.alpha() <= 50)) || robot.frontRightMotor.getCurrentPosition() <= 1000) {
+            while((opModeIsActive() && (robot.lineSensor.alpha() <= 50)) || robot.frontRightMotor.getCurrentPosition() >= -1000) {
                 /*
                 elapsedTime = (System.nanoTime() - startTime)/1e9;
                 telemetry.addData("ElapsedTime:", elapsedTime);
@@ -451,10 +453,10 @@ public class BlueAuto extends LinearOpMode{
             telemetry.addLine("Blue Side Detected!");
             telemetry.update();
 
-            robot.frontRightMotor.setPower(-.1);
-            robot.frontLeftMotor.setPower(.1);
-            robot.backRightMotor.setPower(-.1);
-            robot.backLeftMotor.setPower(.1);
+            robot.frontRightMotor.setPower(.1);
+            robot.frontLeftMotor.setPower(-.1);
+            robot.backRightMotor.setPower(.1);
+            robot.backLeftMotor.setPower(-.1);
 
             if (reverse) {
                 sleep(775);
@@ -511,10 +513,10 @@ public class BlueAuto extends LinearOpMode{
                 redDetected = true;
             }
 
-            robot.frontRightMotor.setPower(.1);
-            robot.frontLeftMotor.setPower(-.1);
-            robot.backRightMotor.setPower(.1);
-            robot.backLeftMotor.setPower(-.1);
+            robot.frontRightMotor.setPower(-.1);
+            robot.frontLeftMotor.setPower(.1);
+            robot.backRightMotor.setPower(-.1);
+            robot.backLeftMotor.setPower(.1);
 
             if (!reverse) {
                 sleep(560);
