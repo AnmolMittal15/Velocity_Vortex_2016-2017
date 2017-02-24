@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbLegacyModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,11 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
-import com.qualcomm.robotcore.hardware.LegacyModule;
-import com.qualcomm.robotcore.hardware.LegacyModulePortDevice;
-import com.qualcomm.robotcore.hardware.LegacyModule;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.LegacyModuleControllerConfiguration;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -40,8 +35,6 @@ public class HardwareMaelstromBot
     public Servo indexer;
     public ColorSensor lineSensor;
     public ColorSensor beaconSensor;
-    //public LegacyModulePortDevice sonar;
-    //public LegacyModule legacy;
 
     HardwareMap hwMap;
 
@@ -71,12 +64,7 @@ public class HardwareMaelstromBot
 
         beaconSensor.setI2cAddress(I2cAddr.create7bit(0x26));
         lineSensor.setI2cAddress(I2cAddr.create7bit(0x1e));
-/*
-        legacy = hwMap.legacyModule.get("Legacy Module");
-        sonar = hwMap.get(LegacyModulePortDevice.class, "Sonar");
-        legacy.enable9v(5, true);
-        //legacy.enableAnalogReadMode(5);
-*/
+
         beaconSensor.enableLed(false);
         lineSensor.enableLed(true);
 

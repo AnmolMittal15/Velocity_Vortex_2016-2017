@@ -28,8 +28,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Blue Autonomous", group ="Autonomous")
 //@Disabled
-public class BlueAuto extends LinearOpMode{
+public class BlueAuto extends LinearOpMode implements Runnable{
 
+    boolean retractFull = false;
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     PID PID = new PID();
 
@@ -101,7 +102,7 @@ public class BlueAuto extends LinearOpMode{
         */
         //EncoderDrive(8180, 7650, 315, 0.000093, 0.0000000005);
 
-        EncoderDrive(/*5750*/ -5650, 180, 0.00034, 0.00000000045);
+        EncoderDrive(/*5750*/ -5650, 180, /*0.00034*/0.00045, 0.00000000049, imu);
 
         angleTarget = /*-27.5*/ 24;
         PID.i = 0;
@@ -110,7 +111,7 @@ public class BlueAuto extends LinearOpMode{
         while (opModeIsActive() && (stopState <= 1000)) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0064, 0.00000000053));
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0065, 0.00000000055));
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
@@ -164,12 +165,12 @@ public class BlueAuto extends LinearOpMode{
 
         if (redDetected) {
 
-            robot.frontLeftMotor.setPower(0.3);
+            robot.frontLeftMotor.setPower(0.4);
             robot.backLeftMotor.setPower(-1);
-            robot.frontRightMotor.setPower(0.3);
+            robot.frontRightMotor.setPower(0.4);
             robot.backRightMotor.setPower(-1);
 
-            sleep(1125);
+            sleep(1300);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -183,7 +184,7 @@ public class BlueAuto extends LinearOpMode{
             robot.frontRightMotor.setPower(0.375);
             robot.backRightMotor.setPower(-1);
 
-            sleep(750);
+            sleep(1300/*750*/);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -238,8 +239,13 @@ public class BlueAuto extends LinearOpMode{
 
     }
 
-    public void EncoderDrive(int rightEncoder, /*int leftEncoder,*/ double angle, double KP, double KI) {
-        AdafruitIMU imu = new AdafruitIMU("IMU", hardwareMap);
+    public void EncoderDrive(int rightEncoder, /*int leftEncoder,*/ double angle, double KP, double KI, AdafruitIMU imu) {
+
+        Thread retract = new Thread();
+        retract.start();
+
+
+        //AdafruitIMU imu = new AdafruitIMU("IMU", hardwareMap);
         double frontLeft;
         double backLeft;
         double frontRight;
@@ -323,7 +329,7 @@ public class BlueAuto extends LinearOpMode{
 
         eReset();
 
-        //double timeKP = 1.5;
+        double timeKP = 1.5;
         long startTime;
         double elapsedTime;
         double leftPower;
@@ -331,12 +337,12 @@ public class BlueAuto extends LinearOpMode{
         double corrKP = 0.01;
 
         if (!reverse) {
-            robot.frontLeftMotor.setPower(-.06);
-            robot.backLeftMotor.setPower(-.06);
-            robot.frontRightMotor.setPower(.06);
-            robot.backRightMotor.setPower(.06);
+            robot.frontLeftMotor.setPower(-.18);
+            robot.backLeftMotor.setPower(-.18);
+            robot.frontRightMotor.setPower(.18);
+            robot.backRightMotor.setPower(.18);
 
-            while(opModeIsActive() && (robot.lineSensor.alpha() <= 50)) {
+            while(opModeIsActive() && (robot.lineSensor.alpha() <= 35)) {
                 //error = imu.getAngles()[0] - initialHeading;
                 //telemetry.addData("Error:", error);
                 /*
@@ -355,15 +361,28 @@ public class BlueAuto extends LinearOpMode{
         }
         else {
 
-            robot.frontLeftMotor.setPower(.15);
-            robot.backLeftMotor.setPower(.15);
-            robot.frontRightMotor.setPower(-.1625);
-            robot.backRightMotor.setPower(-.1625);
 
-            //startTime = System.nanoTime();
-            while((opModeIsActive() && (robot.lineSensor.alpha() <= 50)) || robot.frontRightMotor.getCurrentPosition() >= -1000) {
-                /*
+            //robot.frontLeftMotor.setPower(/*.45*//*.3375*/.225);
+            //robot.backLeftMotor.setPower(/*.45*//*.3375*/.225);
+            //robot.frontRightMotor.setPower(/*-.51*//*-.3825*/-.235);
+            //robot.backRightMotor.setPower(/*-.51*//*-.3825*/-.235);
+
+            robot.frontLeftMotor.setPower(.45);
+            robot.backLeftMotor.setPower(.45);
+            robot.frontRightMotor.setPower(-.5);
+            robot.backRightMotor.setPower(-.5);
+
+            startTime = System.nanoTime();
+            while((opModeIsActive() && (robot.lineSensor.alpha() <= 35)) || robot.frontRightMotor.getCurrentPosition() >= -1000) {
+
                 elapsedTime = (System.nanoTime() - startTime)/1e9;
+                if (elapsedTime > .75) {
+                    robot.frontLeftMotor.setPower(/*.45*//*.3375*/.15);
+                    robot.backLeftMotor.setPower(/*.45*//*.3375*/.15);
+                    robot.frontRightMotor.setPower(/*-.51*//*-.3825*/-.1725);
+                    robot.backRightMotor.setPower(/*-.51*//*-.3825*/-.1725);
+                }
+                /*
                 telemetry.addData("ElapsedTime:", elapsedTime);
 
                 leftPower = -0.75+(timeKP*elapsedTime);
@@ -381,9 +400,9 @@ public class BlueAuto extends LinearOpMode{
                 robot.backLeftMotor.setPower(leftPower);
                 robot.frontRightMotor.setPower(rightPower);
                 robot.backRightMotor.setPower(rightPower);
+                */
                 //error = imu.getAngles()[0] - initialHeading;
                 //telemetry.addData("Error:", error);
-                */
                 /*
                 robot.frontLeftMotor.setPower(robot.frontLeftMotor.getPower() + (corrKP * error));
                 robot.backLeftMotor.setPower(robot.backLeftMotor.getPower() + (corrKP * error));
@@ -460,9 +479,10 @@ public class BlueAuto extends LinearOpMode{
 
             if (reverse) {
                 sleep(775);
+                retractFull = true;
             }
             else {
-                sleep(575);
+                sleep(490);
             }
 
             robot.frontLeftMotor.setPower(0);
@@ -491,13 +511,14 @@ public class BlueAuto extends LinearOpMode{
 
             robot.beaconServo.setPower(1);
 
-            sleep(2750);
+            sleep(3500);
 
             robot.beaconServo.setPower(-1);
 
-            sleep(2750);
+            //sleep(750);
 
-            robot.beaconServo.setPower(0);
+            Thread retract = new Thread();
+            retract.start();
 
             //new Presser().retract();
 
@@ -511,6 +532,7 @@ public class BlueAuto extends LinearOpMode{
 
             if (reverse) {
                 redDetected = true;
+                retractFull = true;
             }
 
             robot.frontRightMotor.setPower(-.1);
@@ -519,7 +541,7 @@ public class BlueAuto extends LinearOpMode{
             robot.backLeftMotor.setPower(.1);
 
             if (!reverse) {
-                sleep(560);
+                sleep(670);
             }
             else {
                 sleep(325);
@@ -551,13 +573,14 @@ public class BlueAuto extends LinearOpMode{
 
             robot.beaconServo.setPower(1);
 
-            sleep(2750);
+            sleep(3500);
 
             robot.beaconServo.setPower(-1);
 
-            sleep(2750);
+            //sleep(750);
 
-            robot.beaconServo.setPower(0);
+            Thread retract = new Thread();
+            retract.start();
 
             //new Presser().retract();
 
@@ -585,6 +608,12 @@ public class BlueAuto extends LinearOpMode{
         robot.backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    public void run() {
+        sleep(3500);
+        robot.beaconServo.setPower(0);
+
+
     }
 
 }
