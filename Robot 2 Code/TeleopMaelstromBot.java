@@ -20,9 +20,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 @TeleOp(name= "Telop Drive")
 
-public class TeleopMaelstromBot extends OpMode {
+public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
 
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     double frontLeft;
@@ -102,6 +104,7 @@ public class TeleopMaelstromBot extends OpMode {
         else {
             robot.beaconServo.setPower(0);
         }
+
         /*
         if (gamepad2.right_stick_y !=0) {
             robot.rightGripper.setPosition(gamepad2.right_stick_y);
@@ -176,12 +179,24 @@ public class TeleopMaelstromBot extends OpMode {
         }*/
 
         if (gamepad1.a || gamepad2.b) {
-            robot.indexer.setPosition(0.25);
+            robot.indexer.setPosition(0.45);
         }
         else {
             robot.indexer.setPosition(0);
         }
+        if (gamepad2.a) {
+            Thread LEDRun = new Thread();
+            LEDRun.start();
 
+        }
+
+        telemetry.addData("Distance", robot.rangeFinder.cmOptical());
+        telemetry.addData("Distance", robot.rangeFinder.cmUltrasonic());
+        telemetry.addData("Distance", robot.rangeFinder.rawOptical());
+        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.METER));
+        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.MM));
     }
 
     public void drive() {
@@ -253,4 +268,15 @@ public class TeleopMaelstromBot extends OpMode {
             robot.backRightMotor.setPower(backRight);
         }
     }
+    /*
+    public void run() {
+        while (true) {
+            robot.LEDStrip.setPower(0);
+            Thread.sleep(500);
+            robot.LEDStrip.setPower(1);
+            sleep(500);
+        }
+
+    }
+    */
 }

@@ -101,36 +101,44 @@ public class RedAuto extends LinearOpMode implements Runnable{
         */
         //EncoderDrive(8180, 7650, 315, 0.000093, 0.0000000005);
 
-        EncoderDrive(/*5750*/ 5430, 0, /*0.00034, 0.00000000045*/0.00045, 0.00000000051, imu);
+        EncoderDrive(/*5750*/ 5330, 0, /*0.00034, 0.00000000045*/0.00045, 0.00000000051, imu);
 
         angleTarget = /*-27.5*/ -24;
         PID.i = 0;
         long startTime = System.nanoTime();
+        long startTime2 = System.nanoTime();
+        long currentLoopTime = 0;
         long stopState = 0;
-        while (opModeIsActive() && (stopState <= 1000)) {
+        while (opModeIsActive() && (stopState <= 1000) && currentLoopTime < 3000) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, /*0.0072, 0.00000000053*/0.0065, 0.00000000054));
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, /*0.0072, 0.00000000053*/0.0066, 0.00000000064));
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
             telemetry.addData("Random", Math.random());
             telemetry.update();
-            if (yaw >= (angleTarget - 1.25) && yaw <= (angleTarget + 1.25)) {
+            if (yaw >= (angleTarget - 1.5) && yaw <= (angleTarget + 1.5)) {
                 stopState = (System.nanoTime() - startTime) / 1000000;
             }
             else {
                 startTime = System.nanoTime();
             }
+            currentLoopTime = (System.nanoTime() - startTime2)/1000000;
             sleep(1);
         }
+
+        //robot.LEDStrip.setPower(0);
 
         BeaconChecker(false);
 
         sleep(1000);
 
         BeaconChecker(true);
+
+        //robot.LEDStrip.setPower(1);
+
         shoot();
 
     }
@@ -163,12 +171,12 @@ public class RedAuto extends LinearOpMode implements Runnable{
     void shoot() {
         if (redDetected) {
 
-            robot.frontLeftMotor.setPower(0.325);
+            robot.frontLeftMotor.setPower(0.275);
             robot.backLeftMotor.setPower(-1);
-            robot.frontRightMotor.setPower(0.325);
+            robot.frontRightMotor.setPower(0.275);
             robot.backRightMotor.setPower(-1);
 
-            sleep(1300);
+            sleep(900);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -182,7 +190,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
             robot.frontRightMotor.setPower(0.325);
             robot.backRightMotor.setPower(-1);
 
-            sleep(1300/*750*/);
+            sleep(900/*750*/);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -357,10 +365,10 @@ public class RedAuto extends LinearOpMode implements Runnable{
         double corrKP = 0.01;
 
         if (!reverse) {
-            robot.frontLeftMotor.setPower(.18);
-            robot.backLeftMotor.setPower(.18);
-            robot.frontRightMotor.setPower(-.18);
-            robot.backRightMotor.setPower(-.18);
+            robot.frontLeftMotor.setPower(.13);
+            robot.backLeftMotor.setPower(.13);
+            robot.frontRightMotor.setPower(-.13);
+            robot.backRightMotor.setPower(-.13 );
 
             while(opModeIsActive() && (robot.lineSensor.alpha() <= 35)) {
                 //error = imu.getAngles()[0] - initialHeading;
@@ -381,19 +389,19 @@ public class RedAuto extends LinearOpMode implements Runnable{
         }
         else {
 
-            robot.frontLeftMotor.setPower(-.45);
-            robot.backLeftMotor.setPower(-.45);
-            robot.frontRightMotor.setPower(.53);
-            robot.backRightMotor.setPower(.53);
+            robot.frontLeftMotor.setPower(-.4);
+            robot.backLeftMotor.setPower(-.4);
+            robot.frontRightMotor.setPower(.44);
+            robot.backRightMotor.setPower(.44);
 
             startTime = System.nanoTime();
             while((opModeIsActive() && (robot.lineSensor.alpha() <= 35)) || robot.frontRightMotor.getCurrentPosition() <= 1000) {
                 elapsedTime = (System.nanoTime() - startTime)/1e9;
-                if (elapsedTime > .75) {
+                if (elapsedTime > 1.1) {
                     robot.frontLeftMotor.setPower(/*.45*//*.3375*/-.15);
                     robot.backLeftMotor.setPower(/*.45*//*.3375*/-.15);
-                    robot.frontRightMotor.setPower(/*-.51*//*-.3825*/.165);
-                    robot.backRightMotor.setPower(/*-.51*//*-.3825*/.165);
+                    robot.frontRightMotor.setPower(/*-.51*//*-.3825*/.15);
+                    robot.backRightMotor.setPower(/*-.51*//*-.3825*/.15);
                 }
                 /*
                 telemetry.addData("ElapsedTime:", elapsedTime);
@@ -494,7 +502,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
                 sleep(775);
             }
             else {
-                sleep(575);
+                sleep(425);
             }
 
             robot.frontLeftMotor.setPower(0);
@@ -555,7 +563,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
                 sleep(560);
             }
             else {
-                sleep(325);
+                sleep(575);
             }
 
             robot.frontLeftMotor.setPower(0);

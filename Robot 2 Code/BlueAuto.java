@@ -108,22 +108,25 @@ public class BlueAuto extends LinearOpMode implements Runnable{
         PID.i = 0;
         long startTime = System.nanoTime();
         long stopState = 0;
-        while (opModeIsActive() && (stopState <= 1000)) {
+        long startTime2 = System.nanoTime();
+        long currentLoopTime = 0;
+        while (opModeIsActive() && (stopState <= 1000) && currentLoopTime < 3000) {
             angles = imu.getAngles();
             yaw = angles[0];
-            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0065, 0.00000000055));
+            robot.frontRightMotor.setPower(-PID.AnglePID(angleTarget, yaw, 0.0066, 0.00000000064));
             robot.backRightMotor.setPower(robot.frontRightMotor.getPower());
             robot.frontLeftMotor.setPower(robot.frontRightMotor.getPower());
             robot.backLeftMotor.setPower(robot.frontRightMotor.getPower());
             telemetry.addData("Yaw:", yaw);
             telemetry.addData("Random", Math.random());
             telemetry.update();
-            if (yaw >= (angleTarget - 1.25) && yaw <= (angleTarget + 1.25)) {
+            if (yaw >= (angleTarget - 1.5) && yaw <= (angleTarget + 1.5)) {
                 stopState = (System.nanoTime() - startTime) / 1000000;
             }
             else {
                 startTime = System.nanoTime();
             }
+            currentLoopTime = (System.nanoTime() - startTime2)/1000000;
             sleep(1);
         }
 
@@ -170,7 +173,7 @@ public class BlueAuto extends LinearOpMode implements Runnable{
             robot.frontRightMotor.setPower(0.4);
             robot.backRightMotor.setPower(-1);
 
-            sleep(1300);
+            sleep(900);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -184,7 +187,7 @@ public class BlueAuto extends LinearOpMode implements Runnable{
             robot.frontRightMotor.setPower(0.375);
             robot.backRightMotor.setPower(-1);
 
-            sleep(1300/*750*/);
+            sleep(900/*750*/);
 
             robot.frontLeftMotor.setPower(0);
             robot.backLeftMotor.setPower(0);
@@ -379,8 +382,8 @@ public class BlueAuto extends LinearOpMode implements Runnable{
                 if (elapsedTime > .75) {
                     robot.frontLeftMotor.setPower(/*.45*//*.3375*/.15);
                     robot.backLeftMotor.setPower(/*.45*//*.3375*/.15);
-                    robot.frontRightMotor.setPower(/*-.51*//*-.3825*/-.1725);
-                    robot.backRightMotor.setPower(/*-.51*//*-.3825*/-.1725);
+                    robot.frontRightMotor.setPower(/*-.51*//*-.3825*/-.15);
+                    robot.backRightMotor.setPower(/*-.51*//*-.3825*/-.15);
                 }
                 /*
                 telemetry.addData("ElapsedTime:", elapsedTime);

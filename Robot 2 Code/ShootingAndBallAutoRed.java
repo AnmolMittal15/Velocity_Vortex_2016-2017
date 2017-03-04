@@ -24,9 +24,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * Created by davjun on 10/30/2016.
  */
 
-@Autonomous(name="Shooting and Ball", group ="Autonomous")
+@Autonomous(name="Shooting and Ball Red", group ="Autonomous")
 //@Disabled
-public class ShootingAndBallAuto extends LinearOpMode {
+public class ShootingAndBallAutoRed extends LinearOpMode {
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     PID PID = new PID();
 
@@ -94,7 +94,7 @@ public class ShootingAndBallAuto extends LinearOpMode {
         shoot();
 
 
-        angleTarget = /*-27.5*/ -90;
+        angleTarget = /*-27.5*/ -65;
         PID.i = 0;
         long startTime = System.nanoTime();
         long stopState = 0;
