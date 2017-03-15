@@ -20,6 +20,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -36,17 +40,47 @@ public class BlueAuto extends LinearOpMode implements Runnable{
 
     boolean redDetected = false;
 
+    private static final int RANGE1_REG_START = 0x04; //Register to start reading
+    private static final int RANGE1_READ_LENGTH = 2; //Number of byte to read
+
+    private I2cAddr RANGE1ADDRESS = new I2cAddr(0x14); //Default I2C address for MR Range (7-bit)
+    I2cDevice RANGE1;
+    I2cDeviceSynch RANGE1Reader;
+
     @Override
     public void runOpMode() {
+
+        RANGE1 = hardwareMap.i2cDevice.get("range");
+        RANGE1Reader = new I2cDeviceSynchImpl(RANGE1, RANGE1ADDRESS, false);
+        RANGE1Reader.engage();
         robot.init(hardwareMap);
 
+        byte[] distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+
+        telemetry.addData("Ultra Sonic", distance[0] & 0xFF);
+        telemetry.addData("ODS", distance[1] & 0xFF);
 
         eReset();
 
         robot.beaconServo.setPower(0);
-        robot.indexer.setPosition(-1);
+        robot.indexer.setPosition(0);
         robot.rightGripper.setPosition(0.999);
         robot.leftGripper.setPosition(.001);
+
+        robot.frontLeftMotor.setPower(0);
+        robot.backLeftMotor.setPower(0);
+        robot.frontRightMotor.setPower(0);
+        robot.backRightMotor.setPower(0);
+        robot.flywheelMotor.setPower(0);
+
+        robot.topLeftIntake.setPower(0);
+        robot.bottomLeftIntake.setPower(0);
+        robot.topRightIntake.setPower(0);
+        robot.bottomRightIntake.setPower(0);
+
+        robot.leftLiftMotor.setPower(0);
+        robot.rightLiftTopMotor.setPower(0);
+        robot.rightLiftBottomMotor.setPower(0);
 /*
 
         robot.beaconServo.setPosition(0.38);
@@ -102,7 +136,7 @@ public class BlueAuto extends LinearOpMode implements Runnable{
         */
         //EncoderDrive(8180, 7650, 315, 0.000093, 0.0000000005);
 
-        EncoderDrive(/*5750*/ -5650, 180, /*0.00034*/0.00045, 0.00000000049, imu);
+        encoderDrive(/*5750*/ -5650, 180, /*0.00034*/0.00045, 0.00000000049, imu);
 
         angleTarget = /*-27.5*/ 24;
         PID.i = 0;
@@ -130,13 +164,35 @@ public class BlueAuto extends LinearOpMode implements Runnable{
             sleep(1);
         }
 
+        strafeToWall(imu);
+
         BeaconChecker(false);
 
         sleep(1000);
 
         BeaconChecker(true);
+
         shoot();
 
+        stopState = 0;
+        startTime = System.nanoTime();
+        while (opModeIsActive() && (stopState <= 1000)) {
+            int rightEncoder = -1600;
+            robot.frontLeftMotor.setPower(-PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), 0.0003, 0));
+            robot.backLeftMotor.setPower(-PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), 0.0003, 0));
+            robot.frontRightMotor.setPower(PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), 0.0003, 0));
+            robot.backRightMotor.setPower(PID.EncoderPID(rightEncoder, robot.frontRightMotor.getCurrentPosition(), 0.0003, 0));
+
+            if ((robot.frontRightMotor.getCurrentPosition() >= (rightEncoder - 50)) &&
+                    (robot.frontRightMotor.getCurrentPosition() <= (rightEncoder + 50))) {
+                stopState = (System.nanoTime() - startTime)/1000000;
+            }
+            else {
+                startTime = System.nanoTime();
+            }
+
+            sleep(1);
+        }
     }
 /*
 
@@ -240,9 +296,10 @@ public class BlueAuto extends LinearOpMode implements Runnable{
 
         robot.flywheelMotor.setPower(0);
 
+        eReset();
     }
 
-    public void EncoderDrive(int rightEncoder, /*int leftEncoder,*/ double angle, double KP, double KI, AdafruitIMU imu) {
+    public void encoderDrive(int rightEncoder, /*int leftEncoder,*/ double angle, double KP, double KI, AdafruitIMU imu) {
 
         Thread retract = new Thread();
         retract.start();
@@ -514,7 +571,7 @@ public class BlueAuto extends LinearOpMode implements Runnable{
 
             robot.beaconServo.setPower(1);
 
-            sleep(3500);
+            sleep(1750);
 
             robot.beaconServo.setPower(-1);
 
@@ -576,7 +633,7 @@ public class BlueAuto extends LinearOpMode implements Runnable{
 
             robot.beaconServo.setPower(1);
 
-            sleep(3500);
+            sleep(1750);
 
             robot.beaconServo.setPower(-1);
 
@@ -612,8 +669,35 @@ public class BlueAuto extends LinearOpMode implements Runnable{
         robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+    void strafeToWall(AdafruitIMU imu) {
+
+        byte[] distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+        double corrKP = 0.1;
+        double startAngle = imu.getAngles()[0];
+        double error;
+        if (distance[0] > 9) {
+            while (distance[0] > 9) {
+                error = imu.getAngles()[0] - startAngle;
+                distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+                robot.frontLeftMotor.setPower((-(distance[0] - 9)/4) + (corrKP * error));
+                robot.backLeftMotor.setPower(((distance[0] - 9)/4));
+                robot.frontRightMotor.setPower((-(distance[0] - 9)/4));
+                robot.backRightMotor.setPower(((distance[0] - 9)/4) + (corrKP * error));
+                telemetry.addData("Ultra Sonic", distance[0] & 0xFF);
+                telemetry.addData("ODS", distance[1] & 0xFF);
+            }
+            robot.frontLeftMotor.setPower(0);
+            robot.backLeftMotor.setPower(0);
+            robot.frontRightMotor.setPower(0);
+            robot.backRightMotor.setPower(0);
+            telemetry.addData("Ultra Sonic", distance[0] & 0xFF);
+            telemetry.addData("ODS", distance[1] & 0xFF);
+        }
+    }
+
     public void run() {
-        sleep(3500);
+        sleep(1750);
         robot.beaconServo.setPower(0);
 
 
