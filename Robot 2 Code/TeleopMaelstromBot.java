@@ -20,11 +20,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name= "Telop Drive")
 
-public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
+public class TeleopMaelstromBot extends OpMode implements Runnable {
 
     HardwareMaelstromBot robot = new HardwareMaelstromBot();
     double frontLeft;
@@ -36,25 +37,49 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
     double driveScaleFactor;
     double x;
     double y;
-    double startTime;
-    boolean autoshootEnabled = false;
-    boolean slowMode = false;
-    boolean drawReleased = false;
-    boolean halfSpeed = false;
-    double timeSincheHalf = 0.5;
+    double secondsSinceStart;
+    long startTime;
     long buttonPressedStart;
+    //boolean autoshootEnabled = false;
+    //boolean slowMode = false;
+    //boolean drawReleased = false;
+    boolean halfSpeed = false;
+    boolean firstLoop = true;
+    boolean armsNotDeployed = true;
+    boolean threadNotStarted = true;
+    double timeSincheHalf = 0.5;
+    //double period = 1;
+
+
 
     public void init() {
 
         robot.init(hardwareMap);
         telemetry.addData("Say", "Hello Driver");
-        telemetry.addData("Did you know", "London is better than Ramsey.");
         telemetry.update();
-
+/*
+        Thread LEDStrip = new Thread();
+        LEDStrip.start();
+*/
         robot.beaconServo.setPower(0);
         robot.indexer.setPosition(0);
         robot.rightGripper.setPosition(0.999);
         robot.leftGripper.setPosition(.001);
+
+        robot.frontLeftMotor.setPower(0);
+        robot.backLeftMotor.setPower(0);
+        robot.frontRightMotor.setPower(0);
+        robot.backRightMotor.setPower(0);
+        robot.flywheelMotor.setPower(0);
+
+        robot.topLeftIntake.setPower(0);
+        robot.bottomLeftIntake.setPower(0);
+        robot.topRightIntake.setPower(0);
+        robot.bottomRightIntake.setPower(0);
+
+        robot.leftLiftMotor.setPower(0);
+        robot.rightLiftTopMotor.setPower(0);
+        robot.rightLiftBottomMotor.setPower(0);
 /*
         robot.beaconServo.setPosition(0.38);
 
@@ -64,14 +89,25 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
         robot.drawServoRight.setPosition(0);
         robot.drawServoLeft.setPosition(1);
         */
+        telemetry.addLine("Hey");
     }
 
     public void loop() {
+/*
+        if (gamepad2.dpad_up) {
+            period += 0.001;
+        } else if (gamepad2.dpad_down) {
+            period -= 0.001;
+        }*/
+
+        if (firstLoop) {
+            startTime = System.nanoTime();
+        }
 
         if (gamepad1.y && timeSincheHalf >= 0.5) {
             buttonPressedStart = System.nanoTime();
         }
-        timeSincheHalf = (System.nanoTime() - buttonPressedStart)/1e9;
+        timeSincheHalf = (System.nanoTime() - buttonPressedStart) / 1e9;
         if (timeSincheHalf > 0.5 && gamepad1.y) {
             halfSpeed = !halfSpeed;
         }
@@ -93,15 +129,13 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
             robot.bottomRightIntake.setPower(0);
         }
 
-              drive();
+        drive();
 
         if (gamepad1.x || gamepad2.dpad_right) {
-             robot.beaconServo.setPower(1);
-        }
-        else if (gamepad1.b || gamepad2.dpad_left) {
+            robot.beaconServo.setPower(1);
+        } else if (gamepad1.b || gamepad2.dpad_left) {
             robot.beaconServo.setPower(-1);
-        }
-        else {
+        } else {
             robot.beaconServo.setPower(0);
         }
 
@@ -119,44 +153,42 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
         if (gamepad2.y) { //Up
             robot.rightGripper.setPosition(.93);
             robot.leftGripper.setPosition(.07);
-        }
-        else if (gamepad2.x) { //Grip
+        } else if (gamepad2.x) { //Grip
             robot.rightGripper.setPosition(0.963);
             robot.leftGripper.setPosition(0.037);
+            armsNotDeployed = false;
         }
-        /*else if (gamepad2.a) {
-            robot.rightGripper.setPosition(.1); //Changed from 0
-            robot.leftGripper.setPosition(.9); //Changed from 1
-        }*/
+        else if (gamepad2.a) {
+            robot.rightGripper.setPosition(0.999);
+            robot.leftGripper.setPosition(.001);
+        }
         if (gamepad2.right_bumper) {
             robot.leftLiftMotor.setPower(1);
-            robot.rightLiftMotor.setPower(-1);
-        }
-        else if (gamepad2.left_bumper) {
+            robot.rightLiftTopMotor.setPower(-1);
+            robot.rightLiftBottomMotor.setPower(-1);
+        } else if (gamepad2.left_bumper) {
             robot.leftLiftMotor.setPower(-1);
-            robot.rightLiftMotor.setPower(1);
-        }
-        else if (gamepad2.right_trigger > 0){
+            robot.rightLiftTopMotor.setPower(1);
+            robot.rightLiftBottomMotor.setPower(1);
+        } else if (gamepad2.right_trigger > 0) {
             robot.leftLiftMotor.setPower(gamepad2.right_trigger);
-            robot.rightLiftMotor.setPower(-gamepad2.right_trigger);
-        }
-
-        else if (gamepad2.left_trigger>0) {
+            robot.rightLiftTopMotor.setPower(-gamepad2.right_trigger);
+            robot.rightLiftBottomMotor.setPower(-gamepad2.right_trigger);
+        } else if (gamepad2.left_trigger > 0) {
             robot.leftLiftMotor.setPower(-gamepad2.left_trigger);
-            robot.rightLiftMotor.setPower(gamepad2.left_trigger);
-        }
-        else {
+            robot.rightLiftTopMotor.setPower(gamepad2.left_trigger);
+            robot.rightLiftBottomMotor.setPower(gamepad2.left_trigger);
+        } else {
             robot.leftLiftMotor.setPower(0);
-            robot.rightLiftMotor.setPower(0);
+            robot.rightLiftTopMotor.setPower(0);
+            robot.rightLiftBottomMotor.setPower(0);
         }
 
         if (gamepad1.right_trigger > 0) {
             robot.flywheelMotor.setPower(1);
-        }
-        else if (gamepad1.left_trigger >0) {
+        } else if (gamepad1.left_trigger > 0) {
             robot.flywheelMotor.setPower(-1);
-        }
-        else {
+        } else {
             robot.flywheelMotor.setPower(0);
         }
         /*else if (!autoshootEnabled){
@@ -180,8 +212,7 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
 
         if (gamepad1.a || gamepad2.b) {
             robot.indexer.setPosition(0.45);
-        }
-        else {
+        } else {
             robot.indexer.setPosition(0);
         }
         if (gamepad2.a) {
@@ -189,14 +220,29 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
             LEDRun.start();
 
         }
-
+/*
         telemetry.addData("Distance", robot.rangeFinder.cmOptical());
         telemetry.addData("Distance", robot.rangeFinder.cmUltrasonic());
         telemetry.addData("Distance", robot.rangeFinder.rawOptical());
-        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.CM));explode
         telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.INCH));
         telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.METER));
         telemetry.addData("Distance", robot.rangeFinder.getDistance(DistanceUnit.MM));
+        */
+
+        secondsSinceStart = (System.nanoTime() - startTime) / 1e9;
+
+        if (armsNotDeployed) {
+            robot.LEDStrip1.setPower((Math.sin(6 * secondsSinceStart) + 1.05) / 2);
+            robot.LEDStrip2.setPower((Math.sin(6 * secondsSinceStart) + 1.05) / 2);
+            //telemetry.addData("Period:", period);
+        } else if (threadNotStarted){
+            Thread LEDOscillator = new Thread();
+            LEDOscillator.start();
+            threadNotStarted = false;
+        }
+
+        firstLoop = false;
     }
 
     public void drive() {
@@ -267,16 +313,25 @@ public class TeleopMaelstromBot extends OpMode /*implements Runnable*/ {
             robot.frontRightMotor.setPower(frontRight);
             robot.backRightMotor.setPower(backRight);
         }
-    }
-    /*
-    public void run() {
-        while (true) {
-            robot.LEDStrip.setPower(0);
-            Thread.sleep(500);
-            robot.LEDStrip.setPower(1);
-            sleep(500);
-        }
 
     }
-    */
+    public void run() {
+        while (true) {
+            robot.LEDStrip1.setPower(0);
+            robot.LEDStrip2.setPower(1);
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+            }
+
+            robot.LEDStrip1.setPower(1);
+            robot.LEDStrip2.setPower(0);
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 }

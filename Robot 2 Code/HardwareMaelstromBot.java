@@ -25,11 +25,13 @@ public class HardwareMaelstromBot
     public DcMotor frontRightMotor;
     public DcMotor backRightMotor;
     public DcMotor leftLiftMotor;
-    public DcMotor rightLiftMotor;
+    public DcMotor rightLiftTopMotor;
+    public DcMotor rightLiftBottomMotor;
     public DcMotor flywheelMotor;
-    //public DcMotor LEDStrip;
+    public DcMotor LEDStrip1;
+    public DcMotor LEDStrip2;
     public CRServo topLeftIntake;
-    public CRServo bottomLeftIntake;
+    public CRServo bottomLeftIntake;//rammyramham is a nerd
     public CRServo topRightIntake;
     public CRServo bottomRightIntake;
     public CRServo beaconServo;
@@ -38,7 +40,7 @@ public class HardwareMaelstromBot
     public Servo indexer;
     public ColorSensor lineSensor;
     public ColorSensor beaconSensor;
-    public ModernRoboticsI2cRangeSensor rangeFinder;
+    //public ModernRoboticsI2cRangeSensor rangeFinder;
 
     HardwareMap hwMap;
 
@@ -52,9 +54,11 @@ public class HardwareMaelstromBot
         frontRightMotor = hwMap.dcMotor.get("front right motor");
         backRightMotor = hwMap.dcMotor.get("back right motor");
         leftLiftMotor = hwMap.dcMotor.get("left lift motor");
-        rightLiftMotor = hwMap.dcMotor.get("right lift motor");
+        rightLiftTopMotor = hwMap.dcMotor.get("right lift top motor");
+        rightLiftBottomMotor = hwMap.dcMotor.get("right lift bottom motor");
         flywheelMotor = hwMap.dcMotor.get("flywheel motor");
-        //LEDStrip = hwMap.dcMotor.get("LED Strip");
+        LEDStrip1 = hwMap.dcMotor.get("LED Strip 1");
+        LEDStrip2 = hwMap.dcMotor.get("LED Strip 2");
         topLeftIntake = hwMap.crservo.get("top left intake");
         bottomLeftIntake = hwMap.crservo.get("bottom left intake");
         topRightIntake = hwMap.crservo.get("top right intake");
@@ -65,7 +69,7 @@ public class HardwareMaelstromBot
         indexer = hwMap.servo.get("indexer");
         lineSensor = hwMap.colorSensor.get("line sensor");
         beaconSensor = hwMap.colorSensor.get("beacon sensor");
-        rangeFinder = hwMap.get(ModernRoboticsI2cRangeSensor.class, "Range Finder");
+        //rangeFinder = hwMap.get(ModernRoboticsI2cRangeSensor.class, "Range Finder");
 
 
         beaconSensor.setI2cAddress(I2cAddr.create7bit(0x26));

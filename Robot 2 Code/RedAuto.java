@@ -43,6 +43,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
     PID PID = new PID();
 
     boolean redDetected = false;
+    int sleepAmount;
 
     private static final int RANGE1_REG_START = 0x04; //Register to start reading
     private static final int RANGE1_READ_LENGTH = 2; //Number of byte to read
@@ -169,7 +170,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
             sleep(1);
         }
 
-        strafeToWall(imu);
+        //strafeToWall(imu);
         //robot.LEDStrip.setPower(0);
 
         BeaconChecker(false);
@@ -200,7 +201,9 @@ public class RedAuto extends LinearOpMode implements Runnable{
             }
 
             sleep(1);
+
         }
+        robot = null;
     }
 /*
 
@@ -593,7 +596,12 @@ public class RedAuto extends LinearOpMode implements Runnable{
 
             robot.beaconServo.setPower(1);
 
-            sleep(1750);
+            byte[] distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+
+            sleepAmount = 200*distance[0];
+
+            sleep(sleepAmount);
+
 
             robot.beaconServo.setPower(-1);
 
@@ -654,7 +662,11 @@ public class RedAuto extends LinearOpMode implements Runnable{
 
             robot.beaconServo.setPower(1);
 
-            sleep(1750);
+            byte[] distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+
+            sleepAmount = 200*distance[0];
+
+            sleep(sleepAmount);
 
             robot.beaconServo.setPower(-1);
 
@@ -690,6 +702,7 @@ public class RedAuto extends LinearOpMode implements Runnable{
         robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+    /*
     void strafeToWall(AdafruitIMU imu) {
 
         byte[] distance = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
@@ -715,8 +728,9 @@ public class RedAuto extends LinearOpMode implements Runnable{
             telemetry.addData("ODS", distance[1] & 0xFF);
         }
     }
+    */
     public void run() {
-        sleep(1750);
+        sleep(sleepAmount);
         robot.beaconServo.setPower(0);
 
     }
